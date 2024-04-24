@@ -11,10 +11,12 @@ DESCRIBE locations;
 
 
 
-
+-------------------------------------------------------------------------------
 -- DML(Data Manipulation Language): 조작어
 -- SELECT
 -- * : 테이블 내에 모든 COLUMN을 PROJECTION , 테이블 설계시에 정의한 순서대로 출력
+-------------------------------------------------------------------------------
+
 SELECT * FROM employees;
 
 -- 특정 COLUMN만 PROJECTION 할 경우 열 목록을 명시해주기
@@ -50,6 +52,7 @@ SELECT employee_id, first_name, last_name FROM employees;
 -- WHERE
 -- 특정 조건을 기준으로 레코드를 선택( SELECTION)
 -- 비교연산 : =, <>, >, >=, <, <=
+------------------------------------------------------
 
 -- 사원들 중 급여가 15,000 이상인 직원의 이름과 급여
 SELECT first_name, salary FROM employees WHERE salary >= 15000;
@@ -73,7 +76,13 @@ SELECT first_name, commission_pct FROM employees WHERE commission_pct IS NULL;
 -- Commission을 받는 상황일때 -> Commission 데이터가 NULL 이 아닐 때
 SELECT first_name, commission_pct FROM employees WHERE commission_pct IS NOT NULL;
 
+
+
+
+-------------------------------------
 -- IN 연산자 : 특정 집합의 요소와 비교
+-------------------------------------
+
 -- 직원들 중 10, 20, 40 부서에서 근무하는 직원들의 이름과 부서 아이디 출력하기
 -- 두가지 방법 다 가능~
 SELECT first_name, department_id FROM employees WHERE department_id = 10 OR department_id = 20 OR department_id = 40;
@@ -88,6 +97,7 @@ SELECT first_name, department_id FROM employees WHERE department_id IN(10, 20, 4
 -- WILDCARD(%, _)를 이용한 부분 문자열 매핑
 -- % : 0개 이상의 정해지지 않은 문자열
 -- _ : 1개의 정해지지 않은 문자열
+------------------------------------------------------
 
 -- 이름에 am을 포함하고 있는 사원의 이름과, 급여 출력하기
 SELECT first_name, salary FROM employees WHERE LOWER(first_name) LIKE'%am%';
@@ -98,14 +108,55 @@ SELECT first_name, salary FROM employees WHERE LOWER(first_name) LIKE'_a%';
 -- 이름의 네번째 글자가 a인 사원의 이름과 급여 출력하기
 SELECT first_name, salary FROM employees WHERE LOWER(first_name) LIKE'___a%';
 
---이름이 네글자인 사원들 중에서 두번째 글자가 a인 사원의 이름과 급여 출력하기
+-- 이름이 네글자인 사원들 중에서 두번째 글자가 a인 사원의 이름과 급여 출력하기
+SELECT first_name, salary FROM employees WHERE first_name LIKE'_a__';
 
+-- 부서 ID가 90인 사원 중, 급여가 20,000이상인 사원은 누구?
+SELECT first_name, department_id, salary FROM employees WHERE salary >= 20000 AND department_id = 90;
+
+-- 입사일이 11/01/01 ~ 17/12/31 구간에 있는 사원의 목록
+SELECT first_name, hire_date, salary FROM employees WHERE hire_date BETWEEN '11/01/01' AND '17/12/31';
+SELECT first_name, hire_date, salary FROM employees WHERE hire_date >= '11/01/01' AND hire_date <= '17/12/31';
+
+-- manager_id가 100, 120, 147인 사원의 명단
+-- 1. 비교연산자 + 논리연산자의 조합
+-- 2. IN 연산자 이용
+-- 두 쿼리를 비교
+SELECT employee_id, first_name, manager_id FROM employees WHERE manager_id IN(100, 120, 147);
+SELECT first_name, manager_id FROM employees WHERE manager_id = 100 OR manager_id = 120 OR manager_id = 147;
+
+
+
+
+--------------------------------------------------
+-- ORDER BY : 주어진 Column 리스트의 순서로 결과를 정렬
+-- ASC : 오름차순(작은 값 -> 큰 값) - default
+-- DESC : 내림차순(큰 값 -> 작은 값)
+-- 여러개의 Column에 적용할 수 있고 , 로 구분한다.
+-- 정렬기준(순서)을 어떻게 세우느냐에 따라서 성능과 출력결과에 영향을 미친다. 
+--------------------------------------------------
+
+SELECT first_name, salary FROM employees ORDER BY salary DESC;
+SELECT first_name, salary FROM employees WHERE salary >= 9000 ORDER BY salary DESC;
+
+-- 부서 번호를 오름차순으로 정렬하고 부서번호, 급여, 이름을 출력하기
+SELECT department_id, salary, first_name FROM employees ORDER BY department_id ASC;
+-- 어차피 ASC는 default 값이기 때문에 생략 가능
+SELECT department_id, salary, first_name FROM employees ORDER BY department_id;
+
+-- 급여가 10,000 이상인 직원의 이름을 급여 내림차순으로 출력하기
+SELECT first_name, salary FROM employees WHERE salary >= 10000 ORDER BY salary DESC; 
+
+-- 부서번호, 급여, 이름 순으로 출력하되 부서번호 오름차순, 급여 내림차순으로 출력하기
+SELECT department_id, salary, first_name FROM employees ORDER BY department_id ASC, salary DESC;
 
 
 
 
 ------------------------------------------------------
 -- 산술연산 : 기본적인 산술연산을 수행할 수 있다.
+------------------------------------------------------
+
 -- 특정 테이블의 값이 아닌 Oracle System 으로부터 데이터를 받아오고 싶을 때 : dual(가상 테이블)사용 -> 값만 출력됨
 SELECT 3.14159 * 10 * 10 FROM dual;
 
@@ -119,10 +170,6 @@ SELECT first_name, salary, commission_pct, salary + salary * commission_pct FROM
 -- NVL(표현식1, 표현식2) : 표현식1이 NULL일 경우 표현식2가 출력됨
 -- NVL
 SELECT first_name, salary, commission_pct, salary + salary * NVL(commission_pct, 0) FROM employees;
-
-
-
-
 
 -- 만약 특정 COLUMN 의 값을 산술 연산에 포함하고 싶다면?
 SELECT first_name, salary, salary * 12 FROM employees;
