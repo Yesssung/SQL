@@ -284,6 +284,64 @@ SELECT '$57,600', TO_NUMBER('$57,600', '$999,999.00') / 12 월급 FROM dual;
 -- TO_NUMBER : 문자 ->  날짜
 SELECT '2012-09-24 13:48:00', TO_DATE('2012-09-24 13:48:00', 'YYYY-MM-DD HH24:MI:SS') FROM dual;
 
+-- 날짜연산
+-- DATE +/- NUMBER : 특정 날 수를 더하거나 뺄 수 있다.
+-- DATE - DATE : 두 날짜 사이의 경과일수
+-- DATE + NUMBER / 24 : 특정 시간이 지난 후의 날짜
+SELECT sysdate,
+    sysdate + 1, sysdate -1,
+    sysdate - TO_DATE('20120924'),
+    sysdate + 48 / 24       -- 오늘 날짜로부터 48시간이 지난 후의 날짜
+FROM dual;
+
+
+
+
+
+-------------------------------------
+-- FUNCTION(NVL, CASE)
+-------------------------------------
+
+-- NVL(표현식, 대체값)
+SELECT first_name, salary, NVL(salary * commission_pct, 0) commission
+FROM employees;
+
+-- NVL2(조건문, NULL이 아닐 때, NULL일 때)
+SELECT first_name, salary, NVL2(commission_pct, salary * commission_pct, 0) commission
+FROM employees;
+
+-- CASE()
+-- 보너스를 지급하기로 했어요
+-- AD관련직 20%, SA관련직 10%, IT관련직 8%, 나머지 5%
+SELECT first_name NAME, job_id, salary,
+    SUBSTR(job_id, 1, 2) ID,
+    CASE SUBSTR(job_id, 1, 2) WHEN 'AD' THEN 0.2 * salary
+                              WHEN 'SA' THEN 0.1 * salary
+                              WHEN 'IT' THEN 0.08 * salary 
+                              ELSE 0.05 * salary
+                              END BONUS 
+FROM employees;
+
+-- DECODE
+SELECT first_name NAME, job_id, salary,
+    SUBSTR(job_id, 1, 2) ID,
+    DECODE( SUBSTR(job_id, 1, 2), 'AD', 0.2 * salary,
+                                  'SA', 0.1 * salary,
+                                  'IT', 0.08 * salary,
+                                        0.05 * salary)
+                                   BONUS 
+FROM employees;
+
+-- 연습문제
+SELECT first_name, department_id,
+    CASE WHEN department_id <= 30 THEN 'A-GROUP'
+         WHEN department_id <= 50 THEN 'B-GROUP' 
+         WHEN department_id <= 100 THEN 'C-GROUP'
+         ELSE 'REMAINDER'
+    END team
+FROM employees
+ORDER BY team ASC, department_id ASC;
+
 
 
 
