@@ -8,8 +8,9 @@ DESCRIBE employees;
 DESCRIBE departments;
 DESCRIBE locations;
 
-
-
+-- 문법 순서 (SELECT -> FROM -> WHERE -> ORDER BY) 
+-- 선 필터링 후 정렬 -> WHERE절과 ORDER BY절의 순서가 바뀌면 안됌!
+-- SELECT projection_columns FROM table_list WHERE selecrion_condition ORDER BY sorting_column[ASC/DESC]
 
 -------------------------------------------------------------------------------
 -- DML(Data Manipulation Language): 조작어
@@ -149,6 +150,140 @@ SELECT first_name, salary FROM employees WHERE salary >= 10000 ORDER BY salary D
 
 -- 부서번호, 급여, 이름 순으로 출력하되 부서번호 오름차순, 급여 내림차순으로 출력하기
 SELECT department_id, salary, first_name FROM employees ORDER BY department_id ASC, salary DESC;
+
+
+
+
+------------------------------------------------------
+-- 단일행 함수
+-- 단일 레코드를 기준으로 특정 Column의 값에 적용하는 함수
+------------------------------------------------------
+
+-- 문자열 단일행 함수
+SELECT first_name, last_name FROM employees;
+
+-- CONCAT : 문자열 연결 -> full name 출력하기
+SELECT first_name, last_name, CONCAT(first_name, CONCAT(' ', last_name))  FROM employees;
+    
+-- INITCAP :  각 단어의 첫번째 글자를 대문자로
+SELECT first_name, last_name, INITCAP(first_name ||' '|| last_name) FROM employees;
+
+-- UPPER, LOWER : 모두 대문자로, 모두 소문자로
+SELECT first_name, last_name, LOWER(first_name), UPPER(first_name) FROM employees;
+
+-- LPAD, RPAD : 왼쪽 빈공간 숫자만큼 저 문자로 채움, 오른쪽 빈공간 동일
+SELECT first_name, last_name, LPAD(first_name, 20, '*'), RPAD(first_name, 20, '*') FROM employees;
+
+-- LTRIM, RTRIM : 왼쪽 빈 공간 삭제, 오른쪽 빈 공간 삭제
+SELECT '     ORACLE     ', '*****DATABASE*****', LTRIM('     ORACLE     '), RTRIM('     ORACLE     ') FROM dual;
+
+-- TRIM : 압뒤 잡음 문자 삭제
+SELECT '     ORACLE     ', '*****DATABASE*****', LTRIM('     ORACLE     '), RTRIM('     ORACLE     '), TRIM('*' FROM '*****DATABASE*****') FROM dual;
+
+-- SUBSTR : 어떤 문자열에서 부분적으로 출력 -> 8번째글자부터 뒤에 네글자 출력 / 뒤에서부터 출력하고 싶으면 - 부호 붙이면 되지유
+SELECT '     ORACLE     ', '*****DATABASE*****', LTRIM('     ORACLE     '), RTRIM('     ORACLE     '), TRIM('*' FROM '*****DATABASE*****'), SUBSTR('Oracle Database', 8, 4) FROM dual;
+SELECT '     ORACLE     ', '*****DATABASE*****', LTRIM('     ORACLE     '), RTRIM('     ORACLE     '), TRIM('*' FROM '*****DATABASE*****'), SUBSTR('Oracle Database', -8, 4) FROM dual;
+
+-- LENGTH : 문자열의 길이 출력하기
+SELECT '     ORACLE     ', '*****DATABASE*****', LTRIM('     ORACLE     '), RTRIM('     ORACLE     '), TRIM('*' FROM '*****DATABASE*****'), SUBSTR('Oracle Database', 8, 4), LENGTH('Oracle Database') FROM dual;
+
+
+-- 숫자형 단일행 함수
+SELECT 3.14159 FROM dual;
+
+-- ABS : 절대값 함수
+SELECT 3.14159, ABS(-3.14) FROM dual;
+
+-- CEIL, FLOOR : 올림, 내림
+SELECT 3.14159, CEIL(3.14), FLOOR(3.14) FROM dual;
+
+-- ROUND : 뒤에 숫자만큼 자리까지 반올림 -> 2라면 두번째 자리까지 출력되야 함
+SELECT round(3.14159, 2) FROM dual;
+SELECT round(3.14159, 0) FROM dual;
+SELECT round(3.14159, -1) FROM dual;
+
+-- TRUNC : 버림 함수 -> 뒤에 숫자만큼 출력되고 나머지는 다 버려용
+SELECT 3.14159, TRUNC(3.14159, 3) FROM dual;
+
+-- SIGN : 부호 함수(-1: 음수, 0: 0, 1: 양수)
+SELECT 3.14159, SIGN(-3.14159) FROM dual;
+
+-- MOD : 나머지 함수 -> 예시는 7을 3으로 나누면? 1나오즁..
+SELECT 3.14159, MOD(7, 3) FROM dual;
+
+-- POWER : 제곱함수 -> 예시는 2의 4제곱
+SELECT 3.14159, POWER(2, 4) FROM dual;
+
+
+
+
+
+-----------------------------------------
+-- DATE FORMAT
+-- RR/MM/DD : 년 월 일
+-----------------------------------------
+
+-- 현재 세션 정보 확인
+SELECT * FROM nls_session_parameters;
+
+-- 현재 날짜 포맷이 어떻게 되는가?
+-- 딕셔너리를 확인하세유
+SELECT value FROM nls_session_parameters
+WHERE parameter='NLS_DATE_FORMAT';
+
+-- 현재 날짜 : SYSDATE -> 일반적으로는 가상테이블 사용해서 날짜 출력
+SELECT sysdate FROM dual;
+SELECT sysdate FROM employees;
+
+
+-- 날짜 관련 단일행 함수
+SELECT sysdate, 
+    ADD_MONTHS(sysdate, 2),                     -- 현재 MONTH로 부터 2개월이 지난 후 날짜
+    LAST_DAY(sysdate),                          -- 현재 달의 마지막 날
+    MONTHS_BETWEEN('12/09/24', sysdate),        -- 두 날짜 사이의 개월수
+    NEXT_DAY(sysdate, '금'),                    -- sysdate 이후에 첫 요일의 날짜 (설정이 korean이기 때문에 한글 쳐야함!)
+    ROUND(sysdate, 'MONTH'),                    -- 오늘은 4/25일 반올림해서 5월이 되버림
+    TRUNC(sysdate, 'MONTH')                     -- 오늘은 4/25일 일수는 버린다. -> 4월1일 됨! 
+FROM dual;
+
+SELECT first_name, hire_date, ROUND (MONTHS_BETWEEN(sysdate, hire_date)) as 근속월수 FROM employees;
+
+
+
+
+
+------------------------------------
+-- 변환함수
+------------------------------------
+-- TO_NUMBER(s, fmt) : 문자열 -> 숫자
+-- TO_DATE(s, fmt) : 문자열 ->  날짜
+-- TO_CHAR(o, fmt) : 숫자, 날짜 -> 문자열
+
+-- YYYY-MM-DD
+SELECT first_name, 
+    TO_CHAR(hire_date, 'YYYY-MM-DD' )
+FROM employees;
+
+-- 현재시간을 년-월-일 시:분:초 로 표시
+SELECT sysdate, 
+    TO_CHAR(sysdate, 'YYYY-MM-DD HH:MI:SS' )
+FROM dual;
+
+-- 단위마다 , 구분해주기
+SELECT TO_CHAR(3000000, 'L999,999,999.99')
+FROM dual;
+
+-- 모든 직원의 이름과 연봉 정보를 표시해서 출력하기
+SELECT first_name, salary, commission_pct,
+    TO_CHAR((salary + salary * NVL(commission_pct, 0)) * 12, '$999,999,999.99' )연봉
+FROM employees;
+
+-- TO_NUMBER : 문자 ->  숫자(나누기 12는 숫자형으로 바뀌었는지 확인하기 위해)
+SELECT '$57,600', TO_NUMBER('$57,600', '$999,999.00') / 12 월급 FROM dual;
+
+-- TO_NUMBER : 문자 ->  날짜
+SELECT '2012-09-24 13:48:00', TO_DATE('2012-09-24 13:48:00', 'YYYY-MM-DD HH24:MI:SS') FROM dual;
+
 
 
 
