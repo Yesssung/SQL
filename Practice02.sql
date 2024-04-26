@@ -5,7 +5,6 @@
 -- 문제 3.
 
 -- 문제 4.
-SELECT max_salary, min_salary FROM jobs  ORDER BY department_id DESC;
 
 -- 문제 5.
 
