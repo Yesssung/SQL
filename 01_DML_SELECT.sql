@@ -3,7 +3,7 @@
 -- SQL 문장의 키워드들 테이블명, 콜럼들은 대소문자 구분하지 않는다.
 -- 실제 데이터의 경우 대소문자를 구분
 
--- 테이블 구조 확인 (DESCRIBE)
+-- 테이블 구조 확인 (DESCRIBE, DESC)
 DESCRIBE employees;
 DESCRIBE departments;
 DESCRIBE locations;
