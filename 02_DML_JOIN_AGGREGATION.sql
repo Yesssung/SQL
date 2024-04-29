@@ -100,3 +100,105 @@ SELECT emp.employee_id, emp.first_name, emp.manager_id, man.first_name FROM empl
 
 -- MANAGER 없는 STEVEN 포함해서 출력해보세오 =============================== 미완
 SELECT emp.employee_id, emp.first_name, emp.manager_id, man.first_name FROM employees emp RIGHT OUTER JOIN employees man ON emp.manager_id = man.employee_id;
+
+
+
+
+
+------------------------------------------------------
+-- Group Aggregation
+-- 집계 : 여러 행으로부터 데이터를 수집, 하나의 행으로 반환
+------------------------------------------------------
+-- count : 개수 세기 함수
+-- 특정 Column 내에 null 값이 포함되어있는지의 여부는 중요하지 않음
+SELECT COUNT(*) FROM employees;     -- employees table 에 레코드가 총 몇개인가
+
+-- commission을 받는 직원의 수를 알고 싶을 경우
+-- commission_pct 가 null 인 경우를 제외하고 싶을 경우
+SELECT COUNT(commission_pct) FROM employees; -- Column 내에 포함된 null 데이터를 카운터 하지 않음
+SELECT COUNT(*) FROM employees WHERE commission_pct IS NOT NULL;
+
+-- SUM : 합계함수
+-- 모든 사원의 급여의 합계 구해보쟈
+SELECT SUM(salary) FROM employees;
+
+-- AVG : 평균함수
+-- 사원들의 평균 급여
+SELECT AVG(salary) FROM employees;
+
+-- 사원들이 받는 평균 commission_pct 얼마?
+SELECT AVG(commission_pct) FROM employees;
+-- AVG 함수는 NULL이 포함될 경우 집계수치에서 제외한다.
+-- NULL 값을 집계 결과에 포함시킬지의 여부는 정책으로 결정하고 수행해야 한다.
+SELECT AVG(NVL(commission_pct, 0)) FROM employees;
+
+-- MIN & MAX : 최소값, 최대값
+-- AVG & MEDIAN : 산술평균, 중앙값
+SELECT MIN(salary) 최소급여,
+       MAX(salary) 최대급여,
+       AVG(salary) 평균급여,
+       MEDIAN(salary) 급여중앙값
+FROM employees;
+
+-- 자주 발생하는 오류
+-- 부서별로 평균 급여를 구하려면
+SELECT department_id, AVG(salary) FROM employees; -- 그래서 둘이 같이 쓰면 오류 발생
+SELECT department_id FROM employees;    -- 여러개의 레코드로 출력
+SELECT AVG(salary) FROM employees;      -- 단일 레코드로 출력
+
+SELECT department_id, salary FROM employees ORDER BY department_id;
+SELECT department_id, ROUND(AVG(salary),2) FROM employees GROUP BY department_id ORDER BY department_id;
+
+
+-- 부서별 평균 급여에 부서명도 포함하여 출력하기
+SELECT emp.department_id, dept.department_name, ROUND(AVG(emp.salary), 2) FROM employees emp JOIN departments dept ON emp.department_id = dept.department_id GROUP BY emp.department_id ORDER BY emp.department_id;
+-- GROUP BY 절 뒤에는 GROUP BY에 참여한 COLUMN과 집계 함수만 남는다.
+SELECT emp.department_id, dept.department_name, ROUND(AVG(emp.salary), 2) FROM employees emp JOIN departments dept ON emp.department_id = dept.department_id GROUP BY emp.department_id, dept.department_name ORDER BY emp.department_id;
+
+-- 평균 급여가 7000이상인 부서만 출력
+SELECT department_id, ROUND(AVG(salary),2) FROM employees WHERE AVG(salary) >= 7000 /*아직 집계 함수가 시행되지 않은 상태이기 때문에 집계함수의 비교 불가*/GROUP BY department_id ORDER BY department_id;
+-- HAVING 절을 사용해서 출력하기
+SELECT department_id, ROUND(AVG(salary),2) FROM employees GROUP BY department_id HAVING AVG(salary) >= 7000 /*GROUP BY aggregation의 조건 필터링*/ORDER BY department_id;
+
+
+
+
+
+--------------------------------------------
+-- ROLLUP & CUBE
+-- GROUP BY절과 함께 사용
+-- 그룹지어진 결과에 대한 좀 더 상세한 요약 제공
+-- 일종의 ITEM TOTAL
+--------------------------------------------
+-- ROLLUP
+SELECT department_id, job_id, SUM(salary) FROM employees GROUP BY ROLLUP(department_id, job_id);
+
+-- CUBE
+-- ROLLUP과 출력되는 ITEM TOTAL값과 함께 COLUMN TOTAL값을 함께 추출
+SELECT department_id, job_id, SUM(salary) FROM employees GROUP BY CUBE(department_id, job_id) ORDER BY department_id;
+
+
+
+
+
+----------------------------------
+-- SUBQUERY
+----------------------------------
+-- 모든 직원의 중앙값보다 많은 급여를 받는 사원 출력하기
+-- 1) 직원 급여의 중앙값? -> 6,200
+-- 2) 1)의 결과보다 많은 급여를 받는 직원 목록
+SELECT MEDIAN(salary) FROM employees;
+SELECT first_name, salary FROM employees WHERE salary >= 6200;
+
+SELECT first_name, salary FROM employees WHERE salary >= (SELECT MEDIAN(salary) FROM employees) ORDER BY salary DESC;
+
+-- SUSAN 보다 늦게 입사한 사원 정보 출력하기
+-- 1) SUSAN의 입사일
+-- 2) 1)보다 늦게 입사한 사원 정보 출력 
+SELECT hire_date FROM employees WHERE first_name = 'Susan';
+SELECT first_name, hire_date FROM employees WHERE hire_date > '12/06/07';
+
+SELECT first_name, hire_date FROM employees WHERE hire_date > (SELECT hire_date FROM employees WHERE first_name = 'Susan');
+
+-- 급여를 모든 직원 급여의 중앙값보다 많이 받으면서 수잔보다 늦게 입사한 직원의 목록
+SELECT first_name, hire_date, salary FROM employees WHERE hire_date > (SELECT hire_date FROM employees WHERE first_name = 'Susan') AND salary >= (SELECT MEDIAN(salary) FROM employees) ORDER BY hire_date, salary DESC;
