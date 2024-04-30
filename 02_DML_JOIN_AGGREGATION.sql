@@ -283,6 +283,7 @@ SELECT * FROM employees WHERE hire_date LIKE '17%' ORDER BY salary DESC;
 -- 2) 1)번을 활용 ROWNUM 값까지 확인해서 ROWNUM 5이하인 레코드 -> 상위 5개의 레코드 출력하기
 SELECT rownum, first_name, salary FROM (SELECT * FROM employees WHERE hire_date LIKE'17%' ORDER BY salary DESC) WHERE rownum <= 5; 
 
+SELECT * FROM employees WHERE hire_date LIKE
 
 
 
