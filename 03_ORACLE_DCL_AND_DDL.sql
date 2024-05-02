@@ -136,3 +136,82 @@ DESC book;
 
 
 
+---------------------
+-- author table 생성
+---------------------
+CREATE TABLE author (
+    author_id NUMBER(10),
+    author_name VARCHAR2(100) NOT NULL,
+    author_desc VARCHAR2(500),
+    PRIMARY KEY(author_id) -- PK는 NOT NULL + UNIQUE
+);
+
+DESC author;
+
+-- BOOK TABLE 에 AUTHOR COLUMN 삭제하기
+-- 나중에 AUTHOR_ID COLUMN 추가 -> AUTHOR.AUTHOR_ID와 참조 연결할 예정
+ALTER TABLE book DROP COLUMN author;
+DESC book;
+
+-- BOOK TABLE에 AUTHOR_ID COLUMN 추가
+-- AUTHOR.AUTHOR_ID를 참조하는 COLUMN -> AUTHOR.AUTHOR_ID COLUMN과 같은 형태여야 한다.
+ALTER TABLE book ADD (author_id NUMBER(10));
+DESC book;
+DESC author;
+
+-- BOOK TABLE 에 BOOK_ID도 AUTHOR TABLE 의 PK와 마찬가지로 NUMBE(10)으로 변경해주기
+ALTER TABLE book MODIFY (book_id NUMBER(10));
+DESC book;
+
+-- BOOK TABLE 의 BOOK_ID COLUMN 에 PK 추가(제약조건 부여)
+ALTER TABLE book ADD CONSTRAINT pk_book_id PRIMARY KEY (book_id);
+DESC book;
+
+-- BOOK TABLE의 AUTHOR_ID COLUMN과 AUTHOR TABLE의 AUTHOR_ID를 FK로 연결
+ALTER TABLE book ADD CONSTRAINT fk_author_id FOREIGN KEY (author_id) REFERENCES author(author_id);
+DESC author;
+
+
+
+
+---------------------------------------------
+-- DICTIONARY
+-- USER_ : 현재 로그인된 사용자에게 허용된 VIEW
+-- ALL_ : 모든 사용자 VIEW
+-- DBA_ : DBA 에게 허용된 VIEW 
+---------------------------------------------
+-- 모든 DICTIONARY 확인하기
+SELECT * FROM DICTIONARY;
+
+-- 사용자 스키마 객체 : USER_OBJECTS
+SELECT * FROM USER_OBJECTS;
+-- 사용자 스키마의 이름과 타입 정보 출력하기
+SELECT OBJECT_NAME, OBJECT_TYPE FROM USER_OBJECTS;
+
+-- 제약조건 확인하기
+SELECT * FROM USER_CONSTRAINTS;
+SELECT CONSTRAINT_NAME, CONSTRAINT_TYPE, SEARCH_CONDITION, TABLE_NAME FROM USER_CONSTRAINTS;
+
+
+-- BOOK TABLE 에 적용된 제약조건의 확인
+SELECT CONSTRAINT_NAME, CONSTRAINT_TYPE, SEARCH_CONDITION FROM USER_CONSTRAINTS WHERE TABLE_NAME = 'BOOK';
+
+
+
+
+
+--------------------------------------------------------------------------------
+-- INSERT : 테이블에 새 레코드(튜플) 추가
+-- 제공된 컬럼 목록의 순서와 타입, 값 목록의 순서와 타입의 일치
+-- 컬럼 목록을 제공하지 않으면 테이블 생성시 정의된 순서와 타입을 따라 자동으로 지정된다.
+--------------------------------------------------------------------------------
+-- 컬럼 목록이 제시되지 않았을 때
+INSERT INTO author VALUES(1, '박경리', '토지');
+
+-- 컬럼 목록을 제시했을 때
+INSERT INTO author(author_id, author_name) VALUES(2, '김영하');
+
+-- 컬럼 목록을 제시했을 때 
+-- 테이블 생성시 정의된 컬럼의 순서와 상관 없이 데이터 제공 가능
+INSERT INTO author(author_name, author_id, author_desc) VALUES('류츠신', 3, '삼체');
+
