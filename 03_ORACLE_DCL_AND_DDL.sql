@@ -199,7 +199,7 @@ SELECT CONSTRAINT_NAME, CONSTRAINT_TYPE, SEARCH_CONDITION FROM USER_CONSTRAINTS 
 
 
 
-
+TRUNCATE TABLE author; -- author table 내용 삭제하기(전체)
 --------------------------------------------------------------------------------
 -- INSERT : 테이블에 새 레코드(튜플) 추가
 -- 제공된 컬럼 목록의 순서와 타입, 값 목록의 순서와 타입의 일치
@@ -207,11 +207,122 @@ SELECT CONSTRAINT_NAME, CONSTRAINT_TYPE, SEARCH_CONDITION FROM USER_CONSTRAINTS 
 --------------------------------------------------------------------------------
 -- 컬럼 목록이 제시되지 않았을 때
 INSERT INTO author VALUES(1, '박경리', '토지');
+SELECT * FROM author;
+
 
 -- 컬럼 목록을 제시했을 때
 INSERT INTO author(author_id, author_name) VALUES(2, '김영하');
+SELECT * FROM author;
 
 -- 컬럼 목록을 제시했을 때 
 -- 테이블 생성시 정의된 컬럼의 순서와 상관 없이 데이터 제공 가능
 INSERT INTO author(author_name, author_id, author_desc) VALUES('류츠신', 3, '삼체');
+SELECT * FROM author;
+
+-- ROLLBACK : 반영 취소
+ROLLBACK;
+SELECT * FROM author;
+
+--
+INSERT INTO author VALUES(1, '박경리', '토지 작가');
+INSERT INTO author(author_id, author_name) VALUES(2, '김영하');
+INSERT INTO author(author_name, author_id, author_desc) VALUES('류츠신', 3, '삼체 작가');
+SELECT * FROM author;
+
+-- 위에 내용들은 TRANSACTION 반영중 -> COMMIT 해야 반영됨 -> CMD에 출력 안됨
+
+-- COMMIT : 변경사항 반영 -> CMD에 출력 됨
+COMMIT;
+
+SELECT * FROM author;
+
+
+
+
+-----------------------------------------------------------------------------------
+-- UPDATE : 특정 레코드의 컬럼 값을 변경한다. 특별한 경우를 제외하고 WHERE이 꼭 있어야한다.
+-- WHERE 가 없으면 전체 레코드가 변경되기 때문
+-----------------------------------------------------------------------------------
+UPDATE author SET author_desc = '알쓸신잡 출연';
+SELECT * FROM author;
+
+ROLLBACK;
+SELECT * FROM author;
+
+UPDATE author SET author_desc = '알쓸신잡 출연' WHERE author_name = '김영하';
+SELECT * FROM author;
+
+COMMIT;
+
+
+
+
+
+--------------------------------------------------------------
+-- DELETE : 테이블의 튜플들 중에서 특정 튜플을 삭제할 때 사용
+-- 이 친구도 WHERE 없으면 전체 튜플이 삭제 되기 때문에 왠만하면 필수
+--------------------------------------------------------------
+-- 연습
+-- HR.EMPLOYEES 테이블을 기반으로 DEPARTMENT_ID 10, 20, 30 인 직원들만 새 테이블 EMP123으로 생성하기
+CREATE TABLE emp123 AS (SELECT * FROM hr.employees WHERE department_id IN(10, 20, 30));
+DESC emp123;
+SELECT first_name, salary, department_id FROM emp123;
+
+-- 부서가 30인 직원들의 급여를 10% 인상하기
+UPDATE emp123 SET salary = salary + salary * 0.1 WHERE department_id = 30;
+SELECT * FROM emp123;
+
+-- JOB_ID 가 MK_로 시작하는 직원들 삭제하기
+DELETE FROM emp123 WHERE job_id LIKE 'MK_%';
+SELECT * FROM emp123;
+
+-- WHERE 절이 없는 DELETE는 모든 레코드를 삭제하기 때문에 반드시! 주의!!
+DELETE FROM emp123;
+SELECT * FROM emp123;
+
+ROLLBACK;
+SELECT * FROM emp123;
+
+
+
+
+-----------------------
+-- TRANSACTION
+-----------------------
+CREATE TABLE t_test(
+    log_text VARCHAR2(100)
+);
+
+-- 첫번째 DML이 수행된 시점에서 TRANSACTION
+INSERT INTO t_test VALUES('트랜잭션 시작');
+SELECT * FROM t_test;
+INSERT INTO t_test VALUES('데이터 INSERT');
+SELECT * FROM t_test;
+
+-- SAVEPOINT  : SAVE POINT 설정
+SAVEPOINT sp1; 
+
+INSERT INTO t_test VALUES('데이터2 INSERT');
+SELECT * FROM t_test;
+
+SAVEPOINT sp2;
+
+UPDATE t_test SET log_test = '업데이트';
+SELECT * FROM t_test;
+
+ROLLBACK TO sp1;
+
+SELECT * FROM t_test;
+
+INSERT INTO t_test VALUES('데이터3 INSERT');
+SELECT * FROM t_test;
+
+-- 반영 -> COMMIT, 취소 -> ROLLBACK
+
+COMMIT;
+SELECT * FROM t_test;
+ROLLBACK; -- COMMIT 했기 때문에 ROLLBACK안됨! -> 명시적으로 TRANSACTION 종료!
+SELECT * FROM t_test;
+
+
 
