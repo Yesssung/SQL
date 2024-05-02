@@ -67,6 +67,20 @@ GRANT select ON employees TO himedia; -- employees 테이블에 있는 select권
 SELECT * FROM hr.employees;           -- himedia 는 HR의 employees를 select할 수 있는 권한만 부여받음.
 SELECT * FROM hr.departments;         -- departments 에 대한 권한을 부여받지 않았기 때문에 select할 수 없음.
 
+-- 현재 사용자에게 부여된 역할(ROLE)의 확인
+SELECT * FROM USER_ROLE_PRIVS;
+
+-- CONNECT & RESOURCE 역할은 어떤 권한으로 구성되어 있나?
+-- sysdba로 진행하기
+-- cmd에서
+-- sqlplus sys/oracle as sysdba
+-- desc role_sys_privs;
+-- CONNECT ROLE에는 어떤 권한이 포함되어 있나?
+-- SELECT privilege FROM role_sys_privs WHERE role='CONNECT';
+-- RESOURCE ROLE에는 어떤 권한이 포함되어 있나?
+-- SELECT privilege FROM role_sys_privs WHERE role='RESOURCE';
+
+
 
 
 
