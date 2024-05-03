@@ -19,3 +19,8 @@ WHERE rnum >= 11 AND rnum <= 20;
 
 -- 문제 6. 
 SELECT emp.first_name||' '||emp.last_name 이름, emp.salary 연봉, dept.department_name 부서이름, MAX(hire_date) HIRE_DATE FROM employees emp JOIN departments dept ON emp.department_id = dept.department_id GROUP BY department_name;
+
+-- 문제 7.
+SELECT emp.employee_id, emp.first_name, emp.last_name, AVG(emp.salary), j.job_title
+FROM employees emp JOIN jobs j ON emp.job_id = j.job_id 
+GROUP BY emp.department_id HAVING MAX(salary);
