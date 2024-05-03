@@ -137,7 +137,7 @@ DESC book;
 
 
 ---------------------
--- author table 생성
+-- 테이블 생성(author table)
 ---------------------
 CREATE TABLE author (
     author_id NUMBER(10),
