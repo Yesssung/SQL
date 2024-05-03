@@ -101,10 +101,48 @@ WHERE t.TABLE_NAME = 'S_EMP';
 SELECT * FROM author;
 
 -- 새로운 레코드를 추가 겹치치 않는 유일한 PK가 필요
-INSERT INTO author (author_id, author_name) VALUES ((SELECT MAX(author_id) +1 FROM author),'이문열'); -- 개발 테스트, 서비스시행 시에도 사용자가 별로 없다면 문제 없음 but..
+-- 아래 같이 해도 되긴 함 개발 테스트, 서비스시행 시에도 사용자가 별로 없다면..
+-- 문제 없음 but 사용자가 많아질수록 오류 발생 가능성
+INSERT INTO author (author_id, author_name) VALUES ((SELECT MAX(author_id) +1 FROM author),'이문열'); 
+
+SELECT * FROM author;
+ROLLBACK;
+
+-- 순차 객체 SEQUENCE
+CREATE SEQUENCE seq_author_id START WITH 4 INCREMENT BY 1 MAXVALUE 1000000;
+
+-- PK는 SEQUENCE 객체로부터 생성
+INSERT INTO author(author_id, author_name, author_desc) VALUES(seq_author_id.NEXTVAL, '스티븐 킹', '쇼생크 탈출');
 
 SELECT * FROM author;
 
+SELECT seq_author_id.CURRVAL FROM dual;
+
+-- 새 시퀀스 생성
+CREATE SEQUENCE my_seq START WITH 1 INCREMENT BY 1 MAXVALUE 10;
+SELECT my_seq.NEXTVAL FROM dual;        -- 다음 시퀀스 추출 가상 컬럼
+SELECT my_seq.CURRVAL FROM dual;        -- 시퀀스의 현재 상태
+
+-- 시퀀스 수정
+ALTER SEQUENCE my_seq INCREMENT BY 2 MAXVALUE 1000000;
+
+SELECT my_seq.CURRVAL FROM dual;
+SELECT my_seq.NEXTVAL FROM dual;
+
+-- 시퀀스를 위한 딕셔너리
+SELECT * FROM USER_SEQUENCES;
+
+SELECT * FROM USER_OBJECTS WHERE OBJECT_TYPE = 'SEQUENCE';
+
+-- 시퀀스 삭제
+DROP SEQUENCE my_seq;
+
+SELECT * FROM USER_SEQUENCES;
+
+-- BOOK 테이블의 PK의 현재 값 확인
+SELECT max(book_id) FROM book;
+
+CREATE SEQUENCE seq_book_id START WITH 3 INCREMENT BY 1 MAXVALUE 1000000 NOCACHE;
 
 
 
